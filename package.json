@@ -1,0 +1,36 @@
+{
+  "name": "rex-canvas",
+  "version": "0.1.0",
+  "description": "Show a live PNG (like a Markasso diagram your agent is drawing) in a Rex pane with the kitty graphics protocol",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "tsx --test test/*.test.ts",
+    "prepare": "npm run build"
+  },
+  "author": "Alberto Barrago",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "bin": {
+    "rex-canvas": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "rex",
+    "skills"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": ["rex", "kitty-graphics", "markasso", "claude-code", "diagram", "cli", "terminal"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlbertoBarrago/rex-canvas.git"
+  }
+}
