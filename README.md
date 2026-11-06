@@ -2,6 +2,8 @@
 
 Watch the diagram your agent is drawing, live, in a [Rex](https://www.superlogical.com/rex) pane beside the chat.
 
+![Claude Code draws a Markasso diagram and rex-canvas shows it live in the pane beside the chat](docs/demo.gif)
+
 Ask Claude Code for a Markasso diagram and a pane opens next to its own. Every time the agent exports the board, the pane redraws it. One screen, chat on one side, the diagram on the other. Pan and zoom in the pane without asking the agent to re-render anything.
 
 `rex-canvas` is a generic PNG viewer: it watches one file and shows it with the [kitty graphics protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/). Markasso is the use case it was built for, but anything that writes a PNG works. Inspired by [almonk/rexpad](https://github.com/almonk/rexpad).
