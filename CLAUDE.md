@@ -37,4 +37,4 @@ To check the real viewer without touching the current layout, open it in its own
 
 ## VCS
 
-`jj`, one bookmark per feature, `main` on top.
+Plain `git` (no jj): one branch per task off `main`, never commit directly on `main`.
