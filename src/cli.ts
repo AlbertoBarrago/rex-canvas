@@ -3,12 +3,18 @@ import { mkdir, realpath } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { parseArgs } from 'node:util';
 import { blockExists, closeBlock, splitBeside } from './rex.js';
+import { GUIDE_KEYS } from './guide.js';
 import { siblingPath } from './save.js';
 import { installSkill, readSkill } from './skill.js';
 import { canvasPath, readPanes, setPane } from './state.js';
 import { runViewer } from './viewer.js';
 
 const HELP = `rex-canvas: show a live PNG in a Rex pane (kitty graphics protocol)
+
+Quick start, in a Rex pane:
+  rex-canvas show                         open the viewer on the right (focus stays here)
+  cp diagram.png "$(rex-canvas path)"     the pane shows it, and redraws on every change
+  rex-canvas skill install                let Claude Code draw Markasso diagrams into it
 
 Usage:
   rex-canvas show [--file P] [--ratio PCT] [--below]   open the viewer beside this pane (no focus change; no-op if open)
@@ -23,6 +29,8 @@ Options:
   --block ID    pane the canvas belongs to (default $REX_BLOCK)
   --ratio PCT   share of the split for the viewer (default 40)
   --below       open below instead of on the right
+
+Keys in the viewer: ${GUIDE_KEYS}, f follow
 `;
 
 /** How to start this same CLI in a new pane, independent of the pane's PATH. */
@@ -49,9 +57,10 @@ async function main(argv: string[]): Promise<number> {
   const [command, sub] = positionals;
   const target = { file: values.file, block: values.block };
 
+  // No command is a request for help, not a mistake: show it and succeed.
   if (values.help || !command || command === 'help') {
     process.stdout.write(HELP);
-    return command || values.help ? 0 : 1;
+    return 0;
   }
 
   switch (command) {
@@ -133,10 +142,15 @@ async function main(argv: string[]): Promise<number> {
   }
 }
 
-main(process.argv.slice(2)).then(
-  (code) => process.exit(code),
-  (err: unknown) => {
-    process.stderr.write(`rex-canvas: ${err instanceof Error ? err.message : String(err)}\n`);
-    process.exit(1);
-  },
-);
+/**
+ * Exits once stdout has drained: on macOS, writes to a pipe are asynchronous,
+ * so exiting right away could cut the help short in `rex-canvas | less`.
+ */
+function exitAfterFlush(code: number): void {
+  process.stdout.write('', () => process.exit(code));
+}
+
+main(process.argv.slice(2)).then(exitAfterFlush, (err: unknown) => {
+  process.stderr.write(`rex-canvas: ${err instanceof Error ? err.message : String(err)}\n`);
+  exitAfterFlush(1);
+});

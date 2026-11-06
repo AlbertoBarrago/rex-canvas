@@ -18,6 +18,7 @@
 import { spawn } from 'node:child_process';
 import { readFile, stat } from 'node:fs/promises';
 import { basename } from 'node:path';
+import { waitingGuide } from './guide.js';
 import { saveCanvas } from './save.js';
 import { deleteImage, placeImage, supportQuery, transmitPng } from './kitty.js';
 import { tokenize, type InputEvent } from './input.js';
@@ -108,18 +109,27 @@ export async function runViewer(opts: ViewerOptions): Promise<void> {
     else if (shown) {
       const time = updatedAt?.toLocaleTimeString() ?? '';
       left = `${basename(opts.file)}  ${shown.info.width}x${shown.info.height}  ${Math.round(view.zoom * 100)}%${follow ? '  follow' : ''}  ${time}`;
-    } else left = `waiting for ${opts.file}`;
+    } else left = `waiting for ${basename(opts.file)}`;
     if (graphics && !graphics.ok) left = `no kitty graphics: ${graphics.message}  ${left}`;
     const gap = cols - left.length - KEY_HINT.length;
     const line = gap >= 2 ? `${left}${' '.repeat(gap)}${KEY_HINT}` : fitText(left, cols);
     write(`\x1b[${out.rows};1H\x1b[2K\x1b[2m${line}\x1b[0m`);
   };
 
+  /** Empty state: the guide as a left-aligned block centered in the image area. */
   const renderWaiting = (): void => {
-    const text = fitText(notice ?? `Waiting for ${opts.file}`, out.columns);
-    const row = Math.max(1, Math.floor(out.rows / 2));
-    const col = Math.max(1, Math.floor((out.columns - text.length) / 2) + 1);
-    write(`\x1b[2J\x1b[${row};${col}H\x1b[2m${text}\x1b[0m`);
+    const lines = waitingGuide({ file: opts.file, width: out.columns, home: process.env.HOME, notice });
+    const blockWidth = Math.max(...lines.map((l) => l.length));
+    const area = Math.max(1, out.rows - 1);
+    const top = Math.max(1, Math.floor((area - lines.length) / 2) + 1);
+    const col = Math.max(1, Math.floor((out.columns - blockWidth) / 2) + 1);
+    let screen = '\x1b[2J';
+    lines.forEach((line, i) => {
+      if (top + i > area) return;
+      // The first line (state or notice) at normal intensity, the help dimmed.
+      screen += `\x1b[${top + i};${col}H${i === 0 ? '' : '\x1b[2m'}${line}\x1b[0m`;
+    });
+    write(screen);
     renderStatus();
   };
 

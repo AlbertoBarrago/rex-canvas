@@ -41,6 +41,8 @@ rex-canvas show                       # opens the viewer on the right, focus sta
 cp some-image.png "$(rex-canvas path)"
 ```
 
+Until the first image arrives, the pane shows which file it watches, how to fill it and the keys. `rex-canvas` with no arguments prints the help with a quick start.
+
 ## Usage
 
 ```sh
