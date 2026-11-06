@@ -27,7 +27,9 @@ Only use it when `$REX_BLOCK` is set (you are running in a Rex pane).
    then `diagram_layout` with `direction: "TB"` (see Readability).
 4. Fix what the tools report: if `diagram_layout` or `diagram_export_png`
    lists warnings (arrows through nodes, overlapping labels, crossings),
-   resolve them before moving on (see Readability).
+   resolve them before moving on (see Readability), then lay out and check
+   again. Don't show the user a diagram that still has warnings without
+   saying which ones remain and why.
 5. Export after each batch of changes:
    - `diagram_export_png` with `path` = the PNG path and
      `returnImage: false` (Markasso MCP 0.6.0+), so the refresh costs no
@@ -52,6 +54,11 @@ and its text becomes hard to read.
   the edge `routing: "elbow"`, or reorder/split the diagram into groups.
 - More than about 12 nodes: split into several diagrams or group them, rather
   than one huge board.
+- No title node: the pane already shows the file name. A text node that no
+  edge connects is not placed by `diagram_layout` on Markasso MCP before
+  0.6.1: it stays where it was created and pulls the picture off-center. If
+  you add one anyway on an older MCP, move it after the layout, centered
+  above the diagram (`diagram_read` for positions, `diagram_update` x/y).
 
 ## Rules
 
